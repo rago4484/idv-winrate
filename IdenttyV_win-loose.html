@@ -2,225 +2,483 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <title>第五人格 勝率チェッカー（サバイバー）</title>
+  <!-- スマホ用 -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>第五人格 勝率チェッカー</title>
   <style>
+    :root {
+      --bg-main: #f3f4f8;
+      --card-bg: #ffffff;
+      --accent: #4c7dff;
+      --accent-soft: #e4ecff;
+      --accent-warm: #ff915e;
+      --border-soft: #e0e3ee;
+      --text-main: #222;
+      --text-sub: #777;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
     body {
       font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      margin: 16px;
-      line-height: 1.6;
-    }
-    h1, h2 {
-      margin-bottom: 0.4em;
-    }
-    .section {
-      border: 1px solid #ddd;
-      border-radius: 8px;
+      margin: 0;
       padding: 12px;
-      margin-bottom: 12px;
+      line-height: 1.6;
+      background: radial-gradient(circle at 0 0, #fdfbff, #f3f4f8 40%, #e8ebf5);
+      color: var(--text-main);
     }
+
+    @media (min-width: 768px) {
+      body {
+        padding: 20px;
+        display: flex;
+        justify-content: center;
+      }
+      .app-container {
+        width: 640px;
+      }
+    }
+
+    .app-container {
+      max-width: 480px;
+      margin: 0 auto;
+    }
+
+    h1 {
+      margin: 0 0 0.2em;
+      font-size: 1.4rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    h1 span.logo-dot {
+      width: 20px;
+      height: 20px;
+      border-radius: 6px;
+      background: linear-gradient(135deg, #4c7dff, #9e7bff);
+      display: inline-block;
+    }
+
+    h2 {
+      margin: 0 0 0.4em;
+      font-size: 1.05rem;
+    }
+
+    .page-header {
+      margin-bottom: 10px;
+    }
+
     .small {
       font-size: 12px;
-      color: #777;
+      color: var(--text-sub);
     }
-    .btn-main {
-      cursor: pointer;
-      padding: 10px 16px;
-      margin: 4px;
+
+    .section {
+      background: var(--card-bg);
+      border-radius: 14px;
+      padding: 12px;
+      margin-bottom: 12px;
+      border: 1px solid var(--border-soft);
+      box-shadow:
+        0 10px 25px rgba(15, 23, 42, 0.05),
+        0 1px 0 rgba(255, 255, 255, 0.9);
+    }
+
+    @media (min-width: 768px) {
+      .section {
+        padding: 16px 18px;
+        margin-bottom: 16px;
+      }
+    }
+
+    .section-header-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 8px;
+      margin-bottom: 4px;
+    }
+
+    .badge {
+      font-size: 11px;
+      padding: 2px 8px;
       border-radius: 999px;
-      border: 1px solid #ccc;
-      background: #f5f5f5;
+      background: #e5f3ff;
+      color: #2563eb;
+      border: 1px solid #bfdbfe;
+      white-space: nowrap;
+    }
+
+    button {
+      cursor: pointer;
+      border: none;
+      background: none;
+      touch-action: manipulation;
+    }
+
+    .btn-main {
+      margin-top: 8px;
+      padding: 10px 16px;
+      border-radius: 999px;
+      border: 1px solid #c7cce5;
+      background: linear-gradient(135deg, #ffffff, #f1f3ff);
       font-size: 14px;
-      min-width: 90px;
+      font-weight: 600;
+      color: #334155;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      box-shadow: 0 2px 8px rgba(15, 23, 42, 0.06);
+      min-width: 80px;
     }
+
+    .btn-main.primary {
+      background: linear-gradient(135deg, var(--accent), #7c9dff);
+      color: #fff;
+      border-color: transparent;
+    }
+
+    .btn-main.danger {
+      background: linear-gradient(135deg, #f97373, #fb923c);
+      color: #fff;
+      border-color: transparent;
+    }
+
     .btn-main:hover {
-      background: #e9e9e9;
+      filter: brightness(0.98);
     }
-    .stats {
+
+    .btn-main:active {
+      transform: translateY(1px);
+      box-shadow: 0 1px 4px rgba(15, 23, 42, 0.1);
+    }
+
+    .btn-group-row {
       display: flex;
       flex-wrap: wrap;
       gap: 8px;
       margin-top: 8px;
     }
-    .stat-box {
-      padding: 8px 10px;
-      border-radius: 8px;
-      background: #f7f7f7;
-      min-width: 150px;
+
+    .stats-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 8px;
     }
+
+    .stat-box {
+      flex: 1 1 120px;
+      padding: 8px 10px;
+      border-radius: 10px;
+      background: #f7f7fb;
+    }
+
     .stat-label {
       font-size: 11px;
-      color: #666;
+      color: #6b7280;
     }
+
     .stat-value {
       font-size: 20px;
       font-weight: 700;
     }
-    .bar-wrapper {
-      background: #f0f0f0;
-      border-radius: 4px;
-      overflow: hidden;
-      height: 14px;
+
+    .stat-sub {
+      font-size: 11px;
+      color: #9ca3af;
+    }
+
+    .field-label {
+      font-weight: 600;
+      margin-top: 6px;
+      margin-bottom: 4px;
+      display: block;
+      font-size: 13px;
+    }
+
+    .field-label .tag {
+      display: inline-block;
+      margin-left: 6px;
+      padding: 2px 6px;
+      border-radius: 999px;
+      background: var(--accent-soft);
+      color: #4b5a88;
+      font-size: 11px;
+      font-weight: 500;
+    }
+
+    .input-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 6px;
+      flex-wrap: wrap;
+    }
+
+    .input-row label {
+      font-size: 12px;
+      min-width: 40px;
+    }
+
+    .num-input {
+      width: 90px;
+      padding: 6px 8px;
+      border-radius: 8px;
+      border: 1px solid #d4d7e5;
+      font-size: 14px;
+      text-align: right;
+    }
+
+    .muted {
+      color: var(--text-sub);
+      font-size: 11px;
       margin-top: 4px;
     }
-    .bar {
-      height: 100%;
-      background: #9bbcf5;
-    }
-    input[type="number"] {
-      width: 80px;
-      padding: 4px 6px;
+
+    @media (min-width: 768px) {
+      h1 {
+        font-size: 1.6rem;
+      }
+      .section {
+        margin-bottom: 18px;
+      }
     }
   </style>
 </head>
 <body>
-  <h1>第五人格 勝率チェッカー（サバイバー）</h1>
-  <p class="small">
-    ・ブラウザの localStorage に保存します（同じブラウザなら閉じても残る）。<br>
-    ・試合後に「勝ち / 分け / 負け」を押すだけでカウントが増えます。
-  </p>
+  <div class="app-container">
+    <header class="page-header">
+      <h1>
+        <span class="logo-dot"></span>
+        第五人格 勝率チェッカー
+      </h1>
+      <p class="small">
+        ・ブラウザの localStorage に保存されるので、同じ端末・同じブラウザなら閉じても残ります。<br>
+        ・勝率は「勝ち ÷（勝ち＋負け）」で計算（分けは含めない）。<br>
+        ・分け率は「分け ÷ 全試合数」を別で表示します。
+      </p>
+    </header>
 
-  <!-- ボタンでカウント -->
-  <div class="section">
-    <h2>1. 試合結果を追加</h2>
-    <button class="btn-main" onclick="addResult('win')">+ 勝ち</button>
-    <button class="btn-main" onclick="addResult('draw')">+ 分け</button>
-    <button class="btn-main" onclick="addResult('loss')">+ 負け</button>
-    <p class="small">
-      ※1試合終わるたびに、結果のボタンを1回押すだけでOKです。
-    </p>
-  </div>
+    <!-- 1. カウンターで記録 -->
+    <section class="section">
+      <div class="section-header-row">
+        <h2>1. カウンターで記録</h2>
+        <span class="badge">試合後にポチポチ</span>
+      </div>
+      <p class="small">
+        試合が終わったら「勝ち／分け／負け」をタップして記録します。
+      </p>
 
-  <!-- 勝率表示 -->
-  <div class="section">
-    <h2>2. 勝率・分け率</h2>
-    <div id="summary" class="stats"></div>
-  </div>
+      <div class="stats-row">
+        <div class="stat-box">
+          <div class="stat-label">総試合数</div>
+          <div class="stat-value" id="total-matches">0</div>
+          <div class="stat-sub">勝ち＋分け＋負け</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-label">勝ち</div>
+          <div class="stat-value" id="wins">0</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-label">分け</div>
+          <div class="stat-value" id="draws">0</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-label">負け</div>
+          <div class="stat-value" id="losses">0</div>
+        </div>
+      </div>
 
-  <!-- 手動入力で上書き & リセット -->
-  <div class="section">
-    <h2>3. 手動で数字をいじる</h2>
-    <p class="small">
-      カウントを間違えたときや、途中からこのツールを使い始めるとき用です。<br>
-      手元のメモどおりの数字を入れて「手動入力の値で上書き」を押すと、その値が保存されます。
-    </p>
-    <div class="stats">
-      <div class="stat-box">
-        <div class="stat-label">勝ち</div>
-        <input id="input-win" type="number" min="0" value="0">
+      <div class="btn-group-row">
+        <button class="btn-main primary" type="button" onclick="addResult('win')">
+          ✅ 勝ち ＋1
+        </button>
+        <button class="btn-main" type="button" onclick="addResult('draw')">
+          ▲ 分け ＋1
+        </button>
+        <button class="btn-main" type="button" onclick="addResult('lose')">
+          ❌ 負け ＋1
+        </button>
       </div>
-      <div class="stat-box">
-        <div class="stat-label">分け</div>
-        <input id="input-draw" type="number" min="0" value="0">
+    </section>
+
+    <!-- 2. 勝率・分け率 -->
+    <section class="section">
+      <div class="section-header-row">
+        <h2>2. 勝率・分け率</h2>
+        <span class="badge">自動計算</span>
       </div>
-      <div class="stat-box">
-        <div class="stat-label">負け</div>
-        <input id="input-loss" type="number" min="0" value="0">
+      <div class="stats-row">
+        <div class="stat-box">
+          <div class="stat-label">勝率（分け除く）</div>
+          <div class="stat-value" id="win-rate">0.0%</div>
+          <div class="stat-sub" id="win-rate-sub">勝ち 0 / (勝ち 0 ＋ 負け 0)</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-label">分け率（全体に対して）</div>
+          <div class="stat-value" id="draw-rate">0.0%</div>
+          <div class="stat-sub" id="draw-rate-sub">分け 0 / 総試合 0</div>
+        </div>
       </div>
-    </div>
-    <button class="btn-main" onclick="applyManual()">手動入力の値で上書き</button>
-    <button class="btn-main" onclick="resetAll()">全データをリセット</button>
+      <p class="small" style="margin-top:8px;">
+        ※勝率は「引き分けを除いたときの勝ち割合」です。<br>
+        例：勝ち 6・分け 2・負け 2 → 勝率 = 6 / (6+2) = 75%、分け率 = 2 / 10 = 20%
+      </p>
+    </section>
+
+    <!-- 3. 手入力・リセット -->
+    <section class="section">
+      <div class="section-header-row">
+        <h2>3. 手入力・リセット</h2>
+        <span class="badge">まとめて調整</span>
+      </div>
+      <p class="small">
+        すでにメモがある場合などは、ここから直接数字を入れて上書きできます。
+      </p>
+
+      <div class="input-row">
+        <label for="input-wins">勝ち</label>
+        <input id="input-wins" type="number" min="0" class="num-input" inputmode="numeric">
+      </div>
+      <div class="input-row">
+        <label for="input-draws">分け</label>
+        <input id="input-draws" type="number" min="0" class="num-input" inputmode="numeric">
+      </div>
+      <div class="input-row">
+        <label for="input-losses">負け</label>
+        <input id="input-losses" type="number" min="0" class="num-input" inputmode="numeric">
+      </div>
+
+      <div class="btn-group-row">
+        <button class="btn-main primary" type="button" onclick="applyManualInput()">
+          ✏️ この値で上書き
+        </button>
+        <button class="btn-main danger" type="button" onclick="resetAll()">
+          🧹 全てリセット
+        </button>
+      </div>
+
+      <p class="muted">
+        ※リセットすると勝ち・分け・負けのカウントがすべて 0 に戻り、localStorage の保存データも削除されます。
+      </p>
+    </section>
   </div>
 
   <script>
     const STORAGE_KEY = "idv_winrate_v1";
-    let stats = { win: 0, draw: 0, loss: 0 };
 
-    function saveStats() {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(stats));
+    let wins = 0;
+    let draws = 0;
+    let losses = 0;
+
+    function save() {
+      try {
+        localStorage.setItem(
+          STORAGE_KEY,
+          JSON.stringify({ wins, draws, losses })
+        );
+      } catch (e) {
+        console.warn("保存失敗", e);
+      }
     }
 
-    function loadStats() {
+    function load() {
       const raw = localStorage.getItem(STORAGE_KEY);
       if (!raw) return;
       try {
         const data = JSON.parse(raw);
-        if (data && typeof data === "object") {
-          stats = {
-            win: data.win || 0,
-            draw: data.draw || 0,
-            loss: data.loss || 0
-          };
-        }
+        if (typeof data.wins === "number") wins = data.wins;
+        if (typeof data.draws === "number") draws = data.draws;
+        if (typeof data.losses === "number") losses = data.losses;
       } catch (e) {
         console.warn("読み込み失敗", e);
       }
     }
 
-    // ボタンでカウント +1
     function addResult(type) {
-      stats[type]++;
-      saveStats();
+      if (type === "win") wins++;
+      if (type === "draw") draws++;
+      if (type === "lose") losses++;
+      save();
       render();
     }
 
-    // 手動で上書き
-    function applyManual() {
-      const w = parseInt(document.getElementById("input-win").value, 10) || 0;
-      const d = parseInt(document.getElementById("input-draw").value, 10) || 0;
-      const l = parseInt(document.getElementById("input-loss").value, 10) || 0;
-      stats = { win: w, draw: d, loss: l };
-      saveStats();
-      render();
-    }
-
-    // 全リセット
     function resetAll() {
-      if (!confirm("本当に全てリセットしますか？")) return;
-      stats = { win: 0, draw: 0, loss: 0 };
+      if (!confirm("勝ち・分け・負けのカウントを全て 0 にリセットしますか？")) return;
+      wins = 0;
+      draws = 0;
+      losses = 0;
       localStorage.removeItem(STORAGE_KEY);
+      render();
+      // 入力欄もクリア
+      document.getElementById("input-wins").value = "";
+      document.getElementById("input-draws").value = "";
+      document.getElementById("input-losses").value = "";
+    }
+
+    function applyManualInput() {
+      const w = parseInt(document.getElementById("input-wins").value, 10);
+      const d = parseInt(document.getElementById("input-draws").value, 10);
+      const l = parseInt(document.getElementById("input-losses").value, 10);
+
+      const safeW = isNaN(w) || w < 0 ? 0 : w;
+      const safeD = isNaN(d) || d < 0 ? 0 : d;
+      const safeL = isNaN(l) || l < 0 ? 0 : l;
+
+      wins = safeW;
+      draws = safeD;
+      losses = safeL;
+
+      save();
       render();
     }
 
     function render() {
-      const container = document.getElementById("summary");
-      const total = stats.win + stats.draw + stats.loss;
-      const noDrawTotal = stats.win + stats.loss;
+      const totalMatches = wins + draws + losses;
+      const winBase = wins + losses; // 勝率の分母（分け除外）
 
-      const winRate = noDrawTotal > 0
-        ? (stats.win / noDrawTotal * 100).toFixed(1) + "%"
-        : "-";
-      const drawRate = total > 0
-        ? (stats.draw / total * 100).toFixed(1) + "%"
-        : "-";
+      document.getElementById("wins").textContent = wins;
+      document.getElementById("draws").textContent = draws;
+      document.getElementById("losses").textContent = losses;
+      document.getElementById("total-matches").textContent = totalMatches;
 
-      const winBar = noDrawTotal > 0 ? (stats.win / noDrawTotal * 100) : 0;
-      const drawBar = total > 0 ? (stats.draw / total * 100) : 0;
+      let winRate = 0;
+      let drawRate = 0;
 
-      container.innerHTML = `
-        <div class="stat-box">
-          <div class="stat-label">総試合数</div>
-          <div class="stat-value">${total} 戦</div>
-          <div class="small">
-            勝ち ${stats.win} / 分け ${stats.draw} / 負け ${stats.loss}
-          </div>
-        </div>
-        <div class="stat-box">
-          <div class="stat-label">勝率（分け除く）</div>
-          <div class="stat-value">${winRate}</div>
-          <div class="bar-wrapper">
-            <div class="bar" style="width:${winBar}%;"></div>
-          </div>
-          <div class="small">勝ち ÷（勝ち＋負け）</div>
-        </div>
-        <div class="stat-box">
-          <div class="stat-label">分け率</div>
-          <div class="stat-value">${drawRate}</div>
-          <div class="bar-wrapper">
-            <div class="bar" style="width:${drawBar}%;"></div>
-          </div>
-          <div class="small">分け ÷ 全試合</div>
-        </div>
-      `;
+      if (winBase > 0) {
+        winRate = (wins / winBase) * 100;
+      }
+      if (totalMatches > 0) {
+        drawRate = (draws / totalMatches) * 100;
+      }
 
-      // 手動入力欄も同期
-      document.getElementById("input-win").value = stats.win;
-      document.getElementById("input-draw").value = stats.draw;
-      document.getElementById("input-loss").value = stats.loss;
+      document.getElementById("win-rate").textContent = winRate.toFixed(1) + "%";
+      document.getElementById("draw-rate").textContent = drawRate.toFixed(1) + "%";
+
+      document.getElementById("win-rate-sub").textContent =
+        `勝ち ${wins} / (勝ち ${wins} ＋ 負け ${losses})`;
+
+      document.getElementById("draw-rate-sub").textContent =
+        `分け ${draws} / 総試合 ${totalMatches}`;
     }
 
-    // 初期表示
-    loadStats();
-    render();
+    function init() {
+      load();
+      // 手入力欄に現在値を反映しておく（任意）
+      document.getElementById("input-wins").value = wins || "";
+      document.getElementById("input-draws").value = draws || "";
+      document.getElementById("input-losses").value = losses || "";
+      render();
+    }
+
+    init();
   </script>
 </body>
 </html>
