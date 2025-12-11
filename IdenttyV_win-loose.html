@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>第五人格 勝率チェッカー（サバイバー）</title>
+  <style>
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      margin: 16px;
+      line-height: 1.6;
+    }
+    h1, h2 {
+      margin-bottom: 0.4em;
+    }
+    .section {
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      padding: 12px;
+      margin-bottom: 12px;
+    }
+    .small {
+      font-size: 12px;
+      color: #777;
+    }
+    .btn-main {
+      cursor: pointer;
+      padding: 10px 16px;
+      margin: 4px;
+      border-radius: 999px;
+      border: 1px solid #ccc;
+      background: #f5f5f5;
+      font-size: 14px;
+      min-width: 90px;
+    }
+    .btn-main:hover {
+      background: #e9e9e9;
+    }
+    .stats {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 8px;
+    }
+    .stat-box {
+      padding: 8px 10px;
+      border-radius: 8px;
+      background: #f7f7f7;
+      min-width: 150px;
+    }
+    .stat-label {
+      font-size: 11px;
+      color: #666;
+    }
+    .stat-value {
+      font-size: 20px;
+      font-weight: 700;
+    }
+    .bar-wrapper {
+      background: #f0f0f0;
+      border-radius: 4px;
+      overflow: hidden;
+      height: 14px;
+      margin-top: 4px;
+    }
+    .bar {
+      height: 100%;
+      background: #9bbcf5;
+    }
+    input[type="number"] {
+      width: 80px;
+      padding: 4px 6px;
+    }
+  </style>
+</head>
+<body>
+  <h1>第五人格 勝率チェッカー（サバイバー）</h1>
+  <p class="small">
+    ・ブラウザの localStorage に保存します（同じブラウザなら閉じても残る）。<br>
+    ・試合後に「勝ち / 分け / 負け」を押すだけでカウントが増えます。
+  </p>
+
+  <!-- ボタンでカウント -->
+  <div class="section">
+    <h2>1. 試合結果を追加</h2>
+    <button class="btn-main" onclick="addResult('win')">+ 勝ち</button>
+    <button class="btn-main" onclick="addResult('draw')">+ 分け</button>
+    <button class="btn-main" onclick="addResult('loss')">+ 負け</button>
+    <p class="small">
+      ※1試合終わるたびに、結果のボタンを1回押すだけでOKです。
+    </p>
+  </div>
+
+  <!-- 勝率表示 -->
+  <div class="section">
+    <h2>2. 勝率・分け率</h2>
+    <div id="summary" class="stats"></div>
+  </div>
+
+  <!-- 手動入力で上書き & リセット -->
+  <div class="section">
+    <h2>3. 手動で数字をいじる</h2>
+    <p class="small">
+      カウントを間違えたときや、途中からこのツールを使い始めるとき用です。<br>
+      手元のメモどおりの数字を入れて「手動入力の値で上書き」を押すと、その値が保存されます。
+    </p>
+    <div class="stats">
+      <div class="stat-box">
+        <div class="stat-label">勝ち</div>
+        <input id="input-win" type="number" min="0" value="0">
+      </div>
+      <div class="stat-box">
+        <div class="stat-label">分け</div>
+        <input id="input-draw" type="number" min="0" value="0">
+      </div>
+      <div class="stat-box">
+        <div class="stat-label">負け</div>
+        <input id="input-loss" type="number" min="0" value="0">
+      </div>
+    </div>
+    <button class="btn-main" onclick="applyManual()">手動入力の値で上書き</button>
+    <button class="btn-main" onclick="resetAll()">全データをリセット</button>
+  </div>
+
+  <script>
+    const STORAGE_KEY = "idv_winrate_v1";
+    let stats = { win: 0, draw: 0, loss: 0 };
+
+    function saveStats() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(stats));
+    }
+
+    function loadStats() {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (!raw) return;
+      try {
+        const data = JSON.parse(raw);
+        if (data && typeof data === "object") {
+          stats = {
+            win: data.win || 0,
+            draw: data.draw || 0,
+            loss: data.loss || 0
+          };
+        }
+      } catch (e) {
+        console.warn("読み込み失敗", e);
+      }
+    }
+
+    // ボタンでカウント +1
+    function addResult(type) {
+      stats[type]++;
+      saveStats();
+      render();
+    }
+
+    // 手動で上書き
+    function applyManual() {
+      const w = parseInt(document.getElementById("input-win").value, 10) || 0;
+      const d = parseInt(document.getElementById("input-draw").value, 10) || 0;
+      const l = parseInt(document.getElementById("input-loss").value, 10) || 0;
+      stats = { win: w, draw: d, loss: l };
+      saveStats();
+      render();
+    }
+
+    // 全リセット
+    function resetAll() {
+      if (!confirm("本当に全てリセットしますか？")) return;
+      stats = { win: 0, draw: 0, loss: 0 };
+      localStorage.removeItem(STORAGE_KEY);
+      render();
+    }
+
+    function render() {
+      const container = document.getElementById("summary");
+      const total = stats.win + stats.draw + stats.loss;
+      const noDrawTotal = stats.win + stats.loss;
+
+      const winRate = noDrawTotal > 0
+        ? (stats.win / noDrawTotal * 100).toFixed(1) + "%"
+        : "-";
+      const drawRate = total > 0
+        ? (stats.draw / total * 100).toFixed(1) + "%"
+        : "-";
+
+      const winBar = noDrawTotal > 0 ? (stats.win / noDrawTotal * 100) : 0;
+      const drawBar = total > 0 ? (stats.draw / total * 100) : 0;
+
+      container.innerHTML = `
+        <div class="stat-box">
+          <div class="stat-label">総試合数</div>
+          <div class="stat-value">${total} 戦</div>
+          <div class="small">
+            勝ち ${stats.win} / 分け ${stats.draw} / 負け ${stats.loss}
+          </div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-label">勝率（分け除く）</div>
+          <div class="stat-value">${winRate}</div>
+          <div class="bar-wrapper">
+            <div class="bar" style="width:${winBar}%;"></div>
+          </div>
+          <div class="small">勝ち ÷（勝ち＋負け）</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-label">分け率</div>
+          <div class="stat-value">${drawRate}</div>
+          <div class="bar-wrapper">
+            <div class="bar" style="width:${drawBar}%;"></div>
+          </div>
+          <div class="small">分け ÷ 全試合</div>
+        </div>
+      `;
+
+      // 手動入力欄も同期
+      document.getElementById("input-win").value = stats.win;
+      document.getElementById("input-draw").value = stats.draw;
+      document.getElementById("input-loss").value = stats.loss;
+    }
+
+    // 初期表示
+    loadStats();
+    render();
+  </script>
+</body>
+</html>
